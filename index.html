@@ -1,1 +1,879 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NuPS Omatoimiharjoittelu</title>
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --red: #C8001A; --red-dark: #9A0014; --red-dim: rgba(200,0,26,0.07); --red-border: rgba(200,0,26,0.18);
+      --accent: #2563EB; --accent-dim: rgba(37,99,235,0.08); --accent-border: rgba(37,99,235,0.2);
+      --bg: #f0f2f5; --bg2: #ffffff; --bg3: #f7f8fa; --border: #e2e5ea;
+      --text: #1a1d23; --text2: #6b7280;
+      --amber: #92620a; --amber-dim: rgba(146,98,10,0.09);
+      --purple: #6d3fa0; --purple-dim: rgba(109,63,160,0.09);
+      --radius: 12px; --radius-sm: 8px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Barlow',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .app{max-width:520px;margin:0 auto;padding:1rem 1rem 3rem}
+    header{padding:1.25rem 0 1rem;margin-bottom:1.25rem}
+    .header-inner{display:flex;align-items:center;gap:12px}
+    .header-icon{width:40px;height:40px;background:var(--red-dim);border:1px solid var(--red-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+    header h1{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);line-height:1.1}
+    header h1 span{color:var(--red)}
+    .season-tag{display:inline-block;font-size:10px;font-weight:600;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:2px 9px;margin-top:3px}
+    .team-tag{display:inline-block;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);border:1px solid var(--accent-border);border-radius:20px;padding:2px 10px;margin-left:8px}
+    .header-divider{height:1px;background:var(--border);margin-top:1rem}
+    .tab-bar{display:flex;gap:0;margin-bottom:1.25rem;border-bottom:1.5px solid var(--border)}
+    .tab{font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;padding:8px 16px;border:none;background:transparent;color:var(--text2);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1.5px;transition:all .15s}
+    .tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+    .tab.coach-tab{font-size:12px;font-weight:500;color:#b0b8c4}
+    .tab.coach-tab.active{color:var(--text2);border-bottom-color:var(--border)}
+    .section{display:none}.section.active{display:block}
+    .card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:10px;transition:border-color .15s}
+    .card.done{border-left:3px solid var(--red);background:#fff}
+    .card.locked{opacity:.42}
+    .card.clickable{cursor:pointer}
+    .card.clickable:hover{border-color:#c8cdd6}
+    .cat-pill{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;display:inline-block;margin-bottom:4px;letter-spacing:.04em;text-transform:uppercase}
+    .cat-pomputtelu{background:#fee2e2;color:#991b1b}
+    .cat-syotto{background:#dbeafe;color:#1e40af}
+    .cat-pallonkasittely{background:#fef3c7;color:#78350f}
+    .cat-harhautukset{background:#ede9fe;color:#4c1d95}
+    .cat-muu{background:#f1f3f6;color:var(--text2)}
+    .xp-pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;background:#f1f3f6;color:var(--text2);border:1px solid var(--border);white-space:nowrap}
+    .xp-pill.locked{background:#f5f5f5;color:#c0c0c0;border-color:#e8e8e8}
+    .ch-title{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:700;color:var(--text);margin:2px 0}
+    .ch-title.done{color:var(--text)}
+    .ch-desc{font-size:13px;color:var(--text2);line-height:1.4}
+    .vid-link{font-size:12px;color:var(--accent);display:inline-flex;align-items:center;gap:4px;margin-top:5px;text-decoration:none}
+    .vid-link:hover{text-decoration:underline}
+    .mark-btn{margin-top:10px;width:100%;padding:9px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;background:var(--red);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;transition:background .15s}
+    .mark-btn:hover{background:var(--red-dark)}
+    .add-btn{width:100%;padding:9px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer;margin-top:4px;transition:background .15s}
+    .add-btn:hover{background:#1d4ed8}
+    .pw-btn{padding:9px 24px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;background:var(--accent);color:#fff;border:none;border-radius:var(--radius-sm);cursor:pointer}
+    .xp-bar-bg{height:5px;background:#e8eaed;border-radius:6px;overflow:hidden;margin:5px 0}
+    .xp-bar-fill{height:100%;background:var(--accent);border-radius:6px;transition:width .5s}
+    .stat-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:1rem}
+    .stat-box{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 12px}
+    .stat-label{font-size:10px;font-weight:700;color:var(--text2);margin-bottom:3px;letter-spacing:.05em;text-transform:uppercase}
+    .stat-val{font-family:'Barlow Condensed',sans-serif;font-size:24px;font-weight:800;color:var(--text)}
+    .player-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .player-row:last-child{border-bottom:none}
+    .avatar{width:34px;height:34px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:800;color:var(--accent);flex-shrink:0}
+    .level-badge{font-size:10px;font-weight:600;padding:2px 8px;border-radius:20px;background:#f1f3f6;color:var(--text2);border:1px solid var(--border);white-space:nowrap}
+    .filter-bar{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:1rem}
+    .filter-btn{font-size:11px;font-weight:600;padding:4px 11px;border:1px solid var(--border);border-radius:20px;background:var(--bg2);cursor:pointer;color:var(--text2);transition:all .12s}
+    .filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+    .filter-btn:hover:not(.active){border-color:#b0b8c4;color:var(--text)}
+    select,input[type=text],input[type=password],textarea{width:100%;margin-bottom:8px;font-size:13px;padding:8px 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg2);color:var(--text);font-family:'Barlow',sans-serif;transition:border-color .15s}
+    select:focus,input:focus,textarea:focus{outline:none;border-color:var(--accent-border);box-shadow:0 0 0 3px var(--accent-dim)}
+    textarea{height:60px;resize:vertical}
+    .form-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:4px;display:block;letter-spacing:.04em;text-transform:uppercase}
+    .section-title{font-size:10px;font-weight:700;color:var(--text2);letter-spacing:.09em;text-transform:uppercase;margin-bottom:8px}
+    .check-circle{width:20px;height:20px;background:var(--red);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .history-row{font-size:12px;padding:6px 0;border-bottom:1px solid var(--border);color:var(--text2);display:flex;justify-content:space-between;gap:8px}
+    .history-row:last-child{border-bottom:none}
+    .toast{background:#1a1d23;color:#fff;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;padding:9px 20px;border-radius:24px;text-align:center;position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);display:none;box-shadow:0 4px 16px rgba(0,0,0,.18);white-space:nowrap}
+    .loading{text-align:center;padding:1.5rem;font-size:13px;color:var(--text2)}
+    .err-box{background:#fff0f1;color:#c0001a;border:1px solid #fcc;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:10px;display:none}
+    .ok-box{background:#f0faf4;color:#166534;border:1px solid #bbf7d0;border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;margin-bottom:10px;display:none}
+    .pw-wrap{text-align:center;padding:2.5rem 0}
+    .del-btn{font-size:11px;font-weight:600;padding:3px 9px;border:1px solid #e0b0b8;border-radius:20px;background:#fff;color:#9f1239;cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .del-btn:hover{background:#fff0f1}
+    .confirm-bar{display:none;gap:8px;align-items:center;margin-top:8px;font-size:12px;color:#9f1239;flex-wrap:wrap}
+    .confirm-yes{padding:4px 12px;font-size:12px;font-weight:700;background:#9f1239;color:white;border:none;border-radius:6px;cursor:pointer}
+    .confirm-no{padding:4px 12px;font-size:12px;font-weight:500;background:#eee;color:#555;border:none;border-radius:6px;cursor:pointer}
+    .levelup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;backdrop-filter:blur(3px)}
+    .levelup-overlay.show{opacity:1;pointer-events:auto}
+    .levelup-box{background:#fff;border:1px solid var(--border);border-radius:20px;padding:2rem;text-align:center;transform:scale(.88) translateY(16px);transition:transform .3s cubic-bezier(.34,1.5,.64,1);max-width:290px;box-shadow:0 16px 48px rgba(0,0,0,.14)}
+    .levelup-overlay.show .levelup-box{transform:scale(1) translateY(0)}
+    .levelup-icon{font-size:48px;margin-bottom:8px}
+    .levelup-title{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:800;color:var(--red);margin-bottom:4px}
+    .levelup-sub{font-size:13px;color:var(--text2);margin-bottom:1.25rem}
+    .levelup-btn{padding:9px 26px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer}
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:flex-end;justify-content:center;z-index:998;opacity:0;transition:opacity .25s;pointer-events:none}
+    .modal-overlay.show{opacity:1;pointer-events:auto}
+    .modal-box{background:#fff;border:1px solid var(--border);border-radius:16px 16px 0 0;padding:1.25rem;width:100%;max-width:520px;max-height:85vh;overflow-y:auto;transform:translateY(100%);transition:transform .3s cubic-bezier(.4,0,.2,1)}
+    .modal-overlay.show .modal-box{transform:translateY(0)}
+    .modal-title{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text);margin-bottom:1rem}
+    .cat-stat-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+    .cat-stat-label{font-size:12px;color:var(--text2);width:110px;flex-shrink:0}
+    .cat-stat-bar-bg{flex:1;height:5px;background:#e8eaed;border-radius:6px;overflow:hidden}
+    .cat-stat-bar-fill{height:100%;border-radius:6px;background:var(--accent);transition:width .5s}
+    .cat-stat-pct{font-size:11px;font-weight:700;color:var(--text2);width:30px;text-align:right;flex-shrink:0}
+    .edit-form{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px;margin-top:8px;display:none}
+    .edit-btn{font-size:11px;font-weight:600;padding:3px 9px;border:1px solid var(--accent-border);border-radius:20px;background:#fff;color:var(--accent);cursor:pointer;white-space:nowrap;flex-shrink:0}
+    .edit-btn:hover{background:var(--accent-dim)}
+    .save-btn{padding:5px 14px;font-size:12px;font-weight:700;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;margin-right:6px}
+    .cancel-btn{padding:5px 12px;font-size:12px;font-weight:500;background:#eee;color:#555;border:none;border-radius:6px;cursor:pointer}
+    .overview-btn{width:100%;padding:9px;font-family:'Barlow',sans-serif;font-size:13px;font-weight:500;background:#fff;color:var(--text2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;transition:all .12s}
+    .overview-btn:hover{border-color:#b0b8c4;color:var(--text)}
+    .vaihda-btn{font-size:12px;font-weight:500;padding:4px 11px;border:1px solid var(--border);border-radius:20px;background:#fff;cursor:pointer;color:var(--text2)}
+    .vaihda-btn:hover{border-color:#b0b8c4}
+    .profiili-btn{font-size:12px;font-weight:600;padding:4px 11px;border:1px solid var(--accent-border);border-radius:20px;background:#fff;cursor:pointer;color:var(--accent)}
+    .profiili-btn:hover{background:var(--accent-dim)}
+    .accordion-btn{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);cursor:pointer;font-family:'Barlow',sans-serif;font-size:13px;font-weight:600;color:var(--text);margin-bottom:4px;transition:border-color .15s}
+    .accordion-btn:hover{border-color:#b0b8c4}
+    .accordion-btn.open{border-color:var(--accent-border);color:var(--accent);border-radius:var(--radius-sm) var(--radius-sm) 0 0;margin-bottom:0}
+    .acc-count{font-size:11px;font-weight:600;color:var(--text2);background:var(--bg3);border:1px solid var(--border);border-radius:20px;padding:1px 8px;margin-left:auto;margin-right:8px}
+    .acc-arrow{font-size:12px;color:var(--text2);transition:transform .2s}
+    .accordion-btn.open .acc-arrow{transform:rotate(180deg);color:var(--accent)}
+    .accordion-body{display:none;background:var(--bg2);border:1px solid var(--accent-border);border-top:none;border-radius:0 0 var(--radius-sm) var(--radius-sm);padding:12px 14px;margin-bottom:8px}
+    /* JOUKKUEVALINTA */
+    .team-select-screen{padding:1rem 0}
+    .team-btn{width:100%;display:flex;align-items:center;gap:14px;padding:16px 18px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:10px;cursor:pointer;transition:all .15s;text-align:left}
+    .team-btn:hover{border-color:var(--accent-border);background:var(--accent-dim)}
+    .team-btn-icon{width:44px;height:44px;border-radius:10px;background:var(--red-dim);border:1px solid var(--red-border);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+    .team-btn-name{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text)}
+    .team-btn-sub{font-size:12px;color:var(--text2);margin-top:2px}
+    .back-btn{font-size:12px;font-weight:600;padding:5px 12px;border:1px solid var(--border);border-radius:20px;background:#fff;cursor:pointer;color:var(--text2);margin-right:8px}
+    .back-btn:hover{border-color:#b0b8c4}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="header-inner">
+      <div class="header-icon">⚽</div>
+      <div style="flex:1">
+        <h1>NuPS <span>omatoimiharjoittelu</span></h1>
+        <div id="season-subtitle"></div>
+      </div>
+    </div>
+    <div class="header-divider"></div>
+  </header>
+  <div id="debug-msg" style="font-size:11px;color:var(--text2);margin-bottom:8px"></div>
 
+  <!-- JOUKKUEVALINTA -->
+  <div id="team-select-screen" class="team-select-screen">
+    <div class="section-title" style="margin-bottom:12px">Valitse joukkue</div>
+    <button class="team-btn" onclick="selectTeam('p17')">
+      <div class="team-btn-icon">⚽</div>
+      <div>
+        <div class="team-btn-name">P17</div>
+        <div class="team-btn-sub">Pojat</div>
+      </div>
+    </button>
+    <button class="team-btn" onclick="selectTeam('t16-17')">
+      <div class="team-btn-icon">⚽</div>
+      <div>
+        <div class="team-btn-name">T16-17</div>
+        <div class="team-btn-sub">Tytöt</div>
+      </div>
+    </button>
+  </div>
+
+  <!-- PÄÄSOVELLUS (piilotettu ennen joukkueen valintaa) -->
+  <div id="main-app" style="display:none">
+    <div class="tab-bar">
+      <button class="tab active" onclick="showTab('player')">⚽ Pelaaja</button>
+      <button class="tab coach-tab" onclick="showTab('coach')">Valmentaja</button>
+    </div>
+
+    <!-- PELAAJA -->
+    <div id="sec-player" class="section active">
+      <div id="err-player" class="err-box"></div>
+      <div id="player-select-screen">
+        <div class="section-title" style="margin-bottom:10px">Valitse pelaaja</div>
+        <select id="player-dropdown" style="margin-bottom:10px"><option value="">– Valitse pelaaja –</option></select>
+        <button onclick="selectFromDropdown()" class="add-btn" style="margin-bottom:10px">Merkitse suorituksia →</button>
+        <button onclick="toggleOverview()" class="overview-btn" id="overview-toggle-btn">📊 Kokonaistilanne</button>
+        <div id="overview-panel" style="display:none;margin-top:1rem">
+          <div class="section-title" style="margin-bottom:8px">Kokonaistilanne</div>
+          <div id="overview-list"></div>
+        </div>
+      </div>
+      <div id="player-app" style="display:none">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:1rem;padding-bottom:1rem;border-bottom:1px solid var(--border)">
+          <div id="p-avatar" class="avatar"></div>
+          <div style="flex:1">
+            <div id="p-name" style="font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800;color:var(--text)"></div>
+            <div id="p-level" style="font-size:12px;color:var(--text2);margin-top:1px"></div>
+          </div>
+          <button onclick="openProfile()" class="profiili-btn">Profiili</button>
+          <button onclick="logOut()" class="vaihda-btn">Poistu</button>
+        </div>
+        <div style="margin-bottom:1.25rem">
+          <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:5px;font-weight:600">
+            <span id="p-xp-label"></span><span id="p-pct" style="color:var(--accent)"></span>
+          </div>
+          <div class="xp-bar-bg"><div class="xp-bar-fill" id="p-xp-fill" style="width:0%"></div></div>
+        </div>
+        <div class="filter-bar" id="cat-filters"></div>
+        <div id="challenge-list"></div>
+      </div>
+    </div>
+
+    <!-- VALMENTAJA -->
+    <div id="sec-coach" class="section">
+      <div id="coach-gate">
+        <div class="pw-wrap">
+          <div style="font-size:15px;font-weight:500;margin-bottom:4px">Valmentajan alue</div>
+          <div style="font-size:13px;color:var(--text2);margin-bottom:16px">Syötä valmentajan koodi</div>
+          <input type="password" id="pw-field" style="width:140px;text-align:center;margin-bottom:12px" placeholder="••••" />
+          <br><button class="pw-btn" onclick="checkPw()">Kirjaudu</button>
+        </div>
+      </div>
+      <div id="coach-panel" style="display:none">
+        <div id="err-coach" class="err-box"></div>
+        <div id="ok-coach" class="ok-box"></div>
+        <div class="section-title">Yhteenveto</div>
+        <div class="stat-grid" id="coach-stats"></div>
+
+        <button class="accordion-btn" onclick="toggleAccordion('acc-players')"><span>Pelaajat</span><span class="acc-count" id="acc-players-count"></span><span class="acc-arrow">▾</span></button>
+        <div class="accordion-body" id="acc-players">
+          <div id="coach-player-list" style="margin-bottom:10px"><div class="loading">Ladataan...</div></div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+            <div style="display:flex;gap:8px">
+              <input type="text" id="new-player-name" placeholder="Lisää pelaaja..." style="margin-bottom:0;flex:1" />
+              <button class="add-btn" style="width:auto;padding:8px 14px;margin-top:0;white-space:nowrap" onclick="addPlayer()">+ Lisää</button>
+            </div>
+          </div>
+        </div>
+
+        <button class="accordion-btn" onclick="toggleAccordion('acc-challenges')"><span>Harjoitteet</span><span class="acc-count" id="acc-challenges-count"></span><span class="acc-arrow">▾</span></button>
+        <div class="accordion-body" id="acc-challenges">
+          <div id="coach-challenge-list" style="margin-bottom:10px"><div class="loading">Ladataan...</div></div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;margin-top:4px">
+            <label class="form-label">Nimi</label><input type="text" id="new-title" placeholder="esim. Pomputtele 30 kertaa" />
+            <label class="form-label">Kuvaus</label><textarea id="new-desc" placeholder="Mitä tehdään..."></textarea>
+            <label class="form-label">Kategoria</label>
+            <select id="new-cat">
+              <option value="pomputtelu">Pomputtelu</option><option value="syotto">Syöttö</option>
+              <option value="pallonkasittely">Pallonkäsittely</option><option value="harhautukset">Harhautukset</option>
+              <option value="muu">Muu</option>
+            </select>
+            <label class="form-label">XP-pisteet</label>
+            <select id="new-xp"><option value="5">5 XP – helppo</option><option value="10" selected>10 XP – normaali</option><option value="15">15 XP – vaativa</option><option value="20">20 XP – haaste</option></select>
+            <label class="form-label">YouTube-linkki (valinnainen)</label><input type="text" id="new-video" placeholder="https://youtube.com/..." />
+            <label class="form-label">Avautuu kun kategorian XP vähintään</label>
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+              <input type="text" id="new-unlock" placeholder="0" style="width:70px;margin-bottom:0;text-align:center" />
+              <span style="font-size:12px;color:var(--text2)">XP (0 = heti auki)</span>
+            </div>
+            <button class="add-btn" onclick="addChallenge()">+ Lisää harjoite</button>
+          </div>
+        </div>
+
+        <button class="accordion-btn" onclick="toggleAccordion('acc-history')"><span>Suoritushistoria</span><span class="acc-count" id="acc-history-count"></span><span class="acc-arrow">▾</span></button>
+        <div class="accordion-body" id="acc-history">
+          <div id="history-list"><div class="loading">Ladataan...</div></div>
+          <div style="margin-top:10px;border-top:1px solid var(--border);padding-top:10px">
+            <div id="clear-history-confirm" class="confirm-bar">Tyhjennetäänkö historia? <button class="confirm-yes" onclick="window.clearAllHistory()">Tyhjennä</button><button class="confirm-no" onclick="window.hideConfirm('clear-history-confirm')">Peruuta</button></div>
+            <button class="del-btn" style="width:100%;text-align:center" onclick="window.showConfirm('clear-history-confirm')">Tyhjennä suoritushistoria</button>
+          </div>
+        </div>
+
+        <button class="accordion-btn" onclick="toggleAccordion('acc-season')"><span>Jakson nimi & kauden vaihto</span><span class="acc-count"></span><span class="acc-arrow">▾</span></button>
+        <div class="accordion-body" id="acc-season">
+          <label class="form-label">Jakson nimi (näkyy etusivulla)</label>
+          <input type="text" id="season-label-input" placeholder="esim. Kesäkuu 2026" />
+          <button class="add-btn" style="margin-bottom:1rem" onclick="saveSeasonLabel()">Tallenna</button>
+          <div style="border-top:1px solid var(--border);padding-top:1rem">
+            <div style="font-size:13px;color:var(--text2);margin-bottom:8px">Arkistoi kauden tulokset ja nollaa suoritukset. Nimet ja haasteet säilyvät.</div>
+            <label class="form-label">Kauden nimi</label>
+            <input type="text" id="season-name" placeholder="esim. Kesäkuu 2026" />
+            <div id="season-confirm" style="display:none;margin-bottom:8px">
+              <div style="font-size:12px;color:#c0001a;margin-bottom:8px;font-weight:600">⚠️ Nollaa kaikkien pelaajien XP:n ja suoritukset.</div>
+              <div style="display:flex;gap:8px">
+                <button class="confirm-yes" style="flex:1" onclick="window.doSeasonReset()">Kyllä, aloita uusi kausi</button>
+                <button class="confirm-no" style="flex:1" onclick="document.getElementById('season-confirm').style.display='none'">Peruuta</button>
+              </div>
+            </div>
+            <button onclick="window.showSeasonConfirm()" class="add-btn" style="background:#c0001a;margin-bottom:1rem" id="season-btn">Aloita uusi kausi</button>
+            <div class="section-title" style="margin-bottom:6px">Aiemmat kaudet</div>
+            <div id="season-archive"><div style="font-size:13px;color:var(--text2)">Ladataan...</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TASONOUSU -->
+<div class="levelup-overlay" id="levelup-overlay">
+  <div class="levelup-box">
+    <div class="levelup-icon">🏆</div>
+    <div class="levelup-title" id="levelup-title">Uusi taso!</div>
+    <div class="levelup-sub" id="levelup-sub"></div>
+    <button class="levelup-btn" onclick="document.getElementById('levelup-overlay').classList.remove('show')">Jatketaan! 💪</button>
+  </div>
+</div>
+
+<!-- PROFIILI -->
+<div class="modal-overlay" id="profile-modal" onclick="closeProfile(event)">
+  <div class="modal-box">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div class="modal-title" id="profile-name">Profiili</div>
+      <button onclick="document.getElementById('profile-modal').classList.remove('show')" style="border:none;background:none;font-size:20px;cursor:pointer;color:var(--text2)">✕</button>
+    </div>
+    <div id="profile-content"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+import { getFirestore, collection, doc, getDocs, addDoc, updateDoc, deleteDoc, serverTimestamp }
+  from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+const firebaseConfig = {
+  apiKey: "AIzaSyCX8Olqf0fszDCeVAgrBifVsjRwBFR4sFE",
+  authDomain: "p17-haasteet.firebaseapp.com",
+  projectId: "p17-haasteet",
+  storageBucket: "p17-haasteet.firebasestorage.app",
+  messagingSenderId: "719754996458",
+  appId: "1:719754996458:web:ca12d19ac8785352bb0593"
+};
+
+const fbApp = initializeApp(firebaseConfig);
+const db = getFirestore(fbApp);
+
+const COACH_PW = '0506';
+const CATS = {
+  pomputtelu:      { label:'Pomputtelu',      cls:'cat-pomputtelu' },
+  syotto:          { label:'Syöttö',          cls:'cat-syotto' },
+  pallonkasittely: { label:'Pallonkäsittely', cls:'cat-pallonkasittely' },
+  harhautukset:    { label:'Harhautukset',    cls:'cat-harhautukset' },
+  muu:             { label:'Muu',             cls:'cat-muu' }
+};
+
+const TEAMS = {
+  'p17':   { name:'P17',    sub:'Pojat 2008–2009' },
+  't16-17':{ name:'T16-17', sub:'Tytöt 2007–2009' }
+};
+
+let currentTeam = null;
+let players = [];
+let challenges = [];
+let currentPlayer = null;
+let catFilter = 'pomputtelu';
+
+// Helpers
+function teamCol(path) { return collection(db, 'teams', currentTeam, path); }
+function teamDoc(path, id) { return doc(db, 'teams', currentTeam, path, id); }
+function totalXP() { return challenges.reduce((s,c)=>s+(c.xp||0),0)||1; }
+function catXPearned(player, cat) {
+  return challenges.filter(c=>c.cat===cat&&(player.done||[]).includes(c.id)).reduce((s,c)=>s+(c.xp||0),0);
+}
+function getLevelByXpAndMax(xp, max) {
+  const pct = Math.round(xp/(max||totalXP())*100);
+  if(pct>=100) return 'Mestari 🏆';
+  if(pct>=75)  return 'Edistynyt';
+  if(pct>=50)  return 'Taitava';
+  if(pct>=25)  return 'Harjoittelija';
+  return 'Aloittelija';
+}
+function getLevel(xp) { return getLevelByXpAndMax(xp, totalXP()); }
+function initials(name) { return name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2); }
+function showErr(id,msg){const el=document.getElementById(id);el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',6000);}
+function showOk(id,msg){const el=document.getElementById(id);if(!el)return;el.textContent=msg;el.style.display='block';setTimeout(()=>el.style.display='none',3000);}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
+
+// JOUKKUEVALINTA
+window.selectTeam = async (teamId) => {
+  currentTeam = teamId;
+  const team = TEAMS[teamId];
+  document.querySelector('header h1').innerHTML = `NuPS <span>${team.name}</span> omatoimiharjoittelu`;
+  document.getElementById('team-select-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'block';
+  await loadPlayers();
+  await loadChallenges();
+  await loadSeasonLabel();
+};
+
+window.showTab = (t) => {
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',['player','coach'][i]===t));
+  document.getElementById('sec-player').classList.toggle('active',t==='player');
+  document.getElementById('sec-coach').classList.toggle('active',t==='coach');
+};
+
+window.toggleAccordion = (id) => {
+  const body=document.getElementById(id), btn=body.previousElementSibling;
+  const isOpen=body.style.display==='block';
+  body.style.display=isOpen?'none':'block';
+  btn.classList.toggle('open',!isOpen);
+};
+
+window.showConfirm = (id) => { const el=document.getElementById(id); if(el) el.style.display='flex'; };
+window.hideConfirm = (id) => { const el=document.getElementById(id); if(el) el.style.display='none'; };
+
+async function loadPlayers() {
+  try {
+    const snap = await getDocs(teamCol('players'));
+    players = snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderPlayerSelect();
+  } catch(e) { showErr('err-player','Yhteys epäonnistui: '+e.message); }
+}
+
+async function loadChallenges() {
+  const snap = await getDocs(teamCol('challenges'));
+  challenges = snap.docs.map(d=>({id:d.id,...d.data()}));
+  challenges.sort((a,b)=>(a.unlockAt||0)-(b.unlockAt||0));
+}
+
+function renderPlayerSelect() {
+  const dd = document.getElementById('player-dropdown');
+  dd.innerHTML = '<option value="">– Valitse pelaaja –</option>';
+  [...players].sort((a,b)=>a.name.localeCompare(b.name,'fi')).forEach(p=>{
+    const opt=document.createElement('option'); opt.value=p.id; opt.textContent=p.name; dd.appendChild(opt);
+  });
+}
+
+function renderOverview() {
+  const el=document.getElementById('overview-list');
+  if(!players.length){el.innerHTML='<div class="loading">Ei pelaajia vielä.</div>';return;}
+  el.innerHTML='';
+  [...players].sort((a,b)=>(b.xp||0)-(a.xp||0)).forEach((p,i)=>{
+    const xp=p.xp||0,done=(p.done||[]).length,pct=Math.round(Math.min(xp,totalXP())/totalXP()*100);
+    const row=document.createElement('div'); row.className='card'; row.style.marginBottom='8px';
+    row.innerHTML=`<div style="display:flex;align-items:center;gap:10px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--red);width:24px;text-align:center;flex-shrink:0">${i+1}</div>
+      <div class="avatar">${initials(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:700;color:var(--text)">${p.name}</div>
+        <div style="font-size:11px;color:var(--text2);margin:2px 0">${getLevel(xp)} · ${xp} XP · ${done} suoritusta</div>
+        <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+      </div>
+      <span class="level-badge">${pct}%</span>
+    </div>`;
+    el.appendChild(row);
+  });
+}
+
+window.toggleOverview = () => {
+  const panel=document.getElementById('overview-panel');
+  const visible=panel.style.display==='none';
+  panel.style.display=visible?'block':'none';
+  if(visible) renderOverview();
+  document.getElementById('overview-toggle-btn').textContent=visible?'✕ Sulje tilanne':'📊 Kokonaistilanne';
+};
+
+window.logOut = () => {
+  currentPlayer=null;
+  document.getElementById('player-select-screen').style.display='block';
+  document.getElementById('player-app').style.display='none';
+  document.getElementById('overview-panel').style.display='none';
+  document.getElementById('overview-toggle-btn').textContent='📊 Kokonaistilanne';
+  loadPlayers();
+};
+
+window.selectFromDropdown = async () => {
+  const id=document.getElementById('player-dropdown').value; if(!id) return;
+  await selectPlayer(id);
+};
+
+async function selectPlayer(id) {
+  currentPlayer=id; catFilter='pomputtelu';
+  await loadChallenges();
+  try {
+    const [hSnap,kSnap]=await Promise.all([
+      getDocs(collection(db,'teams',currentTeam,'players',id,'history')),
+      getDocs(collection(db,'teams',currentTeam,'players',id,'kaudet'))
+    ]);
+    const p=players.find(x=>x.id===id);
+    if(p){
+      p._history=hSnap.docs.map(d=>d.data()).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      p._kaudet=kSnap.docs.map(d=>d.data()).sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    }
+  } catch(e){}
+  document.getElementById('player-select-screen').style.display='none';
+  document.getElementById('player-app').style.display='block';
+  renderPlayerApp();
+}
+
+function renderPlayerApp() {
+  const p=players.find(x=>x.id===currentPlayer); if(!p) return;
+  const xp=p.xp||0, done=p.done||[], pct=Math.round(Math.min(xp,totalXP())/totalXP()*100);
+  document.getElementById('p-avatar').textContent=initials(p.name);
+  document.getElementById('p-name').textContent=p.name;
+  document.getElementById('p-level').textContent=getLevel(xp)+' · '+xp+' XP';
+  document.getElementById('p-xp-label').textContent=xp+' / '+totalXP()+' XP';
+  document.getElementById('p-pct').textContent=pct+'%';
+  document.getElementById('p-xp-fill').style.width=pct+'%';
+  const fb=document.getElementById('cat-filters'); fb.innerHTML='';
+  [...Object.keys(CATS),'kaikki'].forEach(k=>{
+    const b=document.createElement('button');
+    b.className='filter-btn'+(catFilter===k?' active':'');
+    b.textContent=k==='kaikki'?'Kaikki':CATS[k].label;
+    b.onclick=()=>{catFilter=k;renderPlayerApp();};
+    fb.appendChild(b);
+  });
+  const cl=document.getElementById('challenge-list'); cl.innerHTML='';
+  const visible=catFilter==='kaikki'?challenges:challenges.filter(c=>c.cat===catFilter);
+  if(!visible.length){cl.innerHTML='<div class="loading">Ei harjoitteita tässä kategoriassa.</div>';return;}
+  visible.forEach(ch=>{
+    const isDone=done.includes(ch.id);
+    const earnedInCat=catXPearned(p,ch.cat);
+    const isLocked=(earnedInCat<(ch.unlockAt||0))&&!isDone;
+    const cat=CATS[ch.cat]||CATS.muu;
+    const card=document.createElement('div');
+    card.className='card'+(isDone?' done':'')+(isLocked?' locked':'');
+    const checkHtml=isDone?`<div class="check-circle"><svg width="11" height="10" viewBox="0 0 12 10" fill="none"><polyline points="1,5 4.5,8.5 11,1.5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>`:'';
+    const vidHtml=ch.video&&!isLocked?`<a class="vid-link" href="${ch.video}" target="_blank">▶ Videoesimerkki</a>`:'';
+    const lockHtml=isLocked?`<span style="font-size:16px" title="Vaatii ${ch.unlockAt} XP ${CATS[ch.cat]?.label||''}-kategoriassa">🔒</span>`:'';
+    const btnHtml=!isDone&&!isLocked?`<button class="mark-btn" onclick="window.markDone('${ch.id}',${ch.xp||10})">✓ Merkitse suoritetuksi</button>`:'';
+    const undoHtml=isDone?`<div class="confirm-bar" id="undo-${ch.id}" style="margin-top:8px">Perutaanko suoritus? <button class="confirm-yes" onclick="window.unmarkDone('${ch.id}',${ch.xp||10})">Peru</button><button class="confirm-no" onclick="window.hideConfirm('undo-${ch.id}')">Ei</button></div>`:'';
+    card.innerHTML=`<div style="display:flex;align-items:flex-start;gap:8px" ${isDone?`onclick="window.showConfirm('undo-${ch.id}')" style="cursor:pointer"`:''}>
+      <div style="flex:1;min-width:0">
+        <span class="cat-pill ${cat.cls}">${cat.label}</span>
+        <div class="ch-title${isDone?' done':''}">${ch.title}</div>
+        <div class="ch-desc${isDone?' done':''}">${ch.desc||''}</div>
+        ${vidHtml}
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+        <span class="xp-pill${isLocked?' locked':''}">+${ch.xp||10} XP</span>
+        ${checkHtml}${lockHtml}
+      </div>
+    </div>${undoHtml}${btnHtml}`;
+    cl.appendChild(card);
+  });
+}
+
+window.markDone = async (chId, xpAmt) => {
+  const p=players.find(x=>x.id===currentPlayer);
+  if(!p||(p.done||[]).includes(chId)) return;
+  const oldLevel=getLevel(p.xp||0);
+  const newXp=(p.xp||0)+xpAmt, newDone=[...(p.done||[]),chId];
+  const ch=challenges.find(c=>c.id===chId);
+  try {
+    await updateDoc(teamDoc('players',currentPlayer),{xp:newXp,done:newDone});
+    await addDoc(collection(db,'teams',currentTeam,'players',currentPlayer,'history'),{
+      chId, chTitle:ch?ch.title:'', date:new Date().toISOString().split('T')[0], ts:serverTimestamp()
+    });
+    p.xp=newXp; p.done=newDone;
+    if(getLevel(newXp)!==oldLevel){
+      document.getElementById('levelup-title').textContent='Uusi taso: '+getLevel(newXp)+'!';
+      document.getElementById('levelup-sub').textContent='Hienoa työtä – jatka samaan malliin!';
+      document.getElementById('levelup-overlay').classList.add('show');
+    } else { showToast('🎉 +'+xpAmt+' XP – hienoa!'); }
+    renderPlayerApp();
+  } catch(e){ showErr('err-player','Tallennus epäonnistui: '+e.message); }
+};
+
+window.unmarkDone = async (chId, xpAmt) => {
+  const p=players.find(x=>x.id===currentPlayer);
+  if(!p||!(p.done||[]).includes(chId)) return;
+  const newXp=Math.max(0,(p.xp||0)-xpAmt), newDone=(p.done||[]).filter(id=>id!==chId);
+  try {
+    await updateDoc(teamDoc('players',currentPlayer),{xp:newXp,done:newDone});
+    const hSnap=await getDocs(collection(db,'teams',currentTeam,'players',currentPlayer,'history'));
+    const match=hSnap.docs.filter(d=>d.data().chId===chId).pop();
+    if(match) await deleteDoc(match.ref);
+    p.xp=newXp; p.done=newDone;
+    showToast('Suoritus peruttu.');
+    renderPlayerApp();
+  } catch(e){ showErr('err-player','Peruutus epäonnistui: '+e.message); }
+};
+
+window.openProfile = () => {
+  const p=players.find(x=>x.id===currentPlayer); if(!p) return;
+  const xp=p.xp||0, done=p.done||[], pct=Math.round(Math.min(xp,totalXP())/totalXP()*100);
+  document.getElementById('profile-name').textContent=p.name+' – Profiili';
+  const catStats=Object.entries(CATS).map(([key,cat])=>{
+    const catChs=challenges.filter(c=>c.cat===key);
+    const catDone=catChs.filter(c=>done.includes(c.id)).length;
+    const catXP=catXPearned(p,key);
+    const catMaxXP=catChs.reduce((s,c)=>s+(c.xp||0),0);
+    const catPct=catMaxXP>0?Math.round(catXP/catMaxXP*100):0;
+    return{cat,key,catDone,catTotal:catChs.length,catXP,catMaxXP,catPct};
+  }).filter(s=>s.catTotal>0);
+  const historyRows=(p._history||[]).slice(-10).reverse().map(h=>`<div class="history-row"><span>${h.chTitle||'Harjoite'}</span><span>${h.date||''}</span></div>`).join('')||'<div style="font-size:13px;color:var(--text2)">Ei suorituksia vielä.</div>';
+  document.getElementById('profile-content').innerHTML=`
+    <div class="card" style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span style="font-size:14px;font-weight:600">${getLevel(xp)}</span>
+        <span style="font-size:13px;color:var(--text2)">${xp} / ${totalXP()} XP · ${pct}%</span>
+      </div>
+      <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:6px">${done.length} suoritusta yhteensä</div>
+    </div>
+    <div class="section-title" style="margin-bottom:8px">Edistyminen kategorioittain</div>
+    <div class="card" style="margin-bottom:10px">
+      ${catStats.map(s=>`<div class="cat-stat-row"><div class="cat-stat-label"><span class="cat-pill ${s.cat.cls}" style="margin-bottom:0">${s.cat.label}</span></div><div class="cat-stat-bar-bg"><div class="cat-stat-bar-fill" style="width:${s.catPct}%"></div></div><div class="cat-stat-pct">${s.catPct}%</div></div><div style="font-size:11px;color:var(--text2);margin:-4px 0 8px 120px">${s.catDone}/${s.catTotal} harjoitetta · ${s.catXP} XP</div>`).join('')}
+    </div>
+    <div class="section-title" style="margin-bottom:8px">Viimeisimmät suoritukset</div>
+    <div class="card">${historyRows}</div>
+    ${(p._kaudet&&p._kaudet.length)?`
+    <div class="section-title" style="margin-bottom:8px;margin-top:1rem">Aiemmat kaudet</div>
+    <div class="card">${p._kaudet.map(k=>`<div class="history-row"><span style="font-weight:600;color:var(--text)">${k.nimi||'Kausi'}</span><span style="display:flex;align-items:center;gap:8px"><span class="level-badge">${getLevelByXpAndMax(k.xp||0,k.totalXP||null)}</span><span style="font-size:12px;color:var(--text2)">${k.xp||0} XP</span></span></div>`).join('')}</div>`:''}`;
+  document.getElementById('profile-modal').classList.add('show');
+};
+
+window.closeProfile = (e) => { if(e.target===document.getElementById('profile-modal')) document.getElementById('profile-modal').classList.remove('show'); };
+
+window.checkPw = () => {
+  if(document.getElementById('pw-field').value===COACH_PW){
+    document.getElementById('coach-gate').style.display='none';
+    document.getElementById('coach-panel').style.display='block';
+    loadCoach();
+  } else { document.getElementById('pw-field').value=''; document.getElementById('pw-field').placeholder='Väärä koodi!'; }
+};
+
+async function loadCoach() {
+  try {
+    const [pSnap,cSnap]=await Promise.all([getDocs(teamCol('players')),getDocs(teamCol('challenges'))]);
+    players=pSnap.docs.map(d=>({id:d.id,...d.data()}));
+    challenges=cSnap.docs.map(d=>({id:d.id,...d.data()}));
+    challenges.sort((a,b)=>(a.unlockAt||0)-(b.unlockAt||0));
+    const total=players.reduce((s,p)=>s+(p.done||[]).length,0);
+    document.getElementById('coach-stats').innerHTML=`
+      <div class="stat-box"><div class="stat-label">Pelaajia</div><div class="stat-val">${players.length}</div></div>
+      <div class="stat-box"><div class="stat-label">Suorituksia</div><div class="stat-val">${total}</div></div>
+      <div class="stat-box"><div class="stat-label">Harjoitteita</div><div class="stat-val">${challenges.length}</div></div>`;
+    const pc=document.getElementById('acc-players-count'); if(pc) pc.textContent=players.length;
+    const cc=document.getElementById('acc-challenges-count'); if(cc) cc.textContent=challenges.length;
+    const pl=document.getElementById('coach-player-list'); pl.innerHTML='';
+    if(!players.length){pl.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">Ei pelaajia vielä.</div>';}
+    else {
+      [...players].sort((a,b)=>a.name.localeCompare(b.name,'fi')).forEach(p=>{
+        const xp=p.xp||0,pct=Math.round(Math.min(xp,totalXP())/totalXP()*100);
+        const row=document.createElement('div'); row.className='player-row';
+        row.innerHTML=`<div class="avatar">${initials(p.name)}</div>
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14px;font-weight:600;color:var(--text)">${p.name}</div>
+            <div style="font-size:12px;color:var(--text2)">${(p.done||[]).length} suoritusta · ${xp} XP</div>
+            <div class="xp-bar-bg"><div class="xp-bar-fill" style="width:${pct}%"></div></div>
+            <div class="confirm-bar" id="confirm-p-${p.id}">Poistetaanko pelaaja? <button class="confirm-yes" onclick="window.deletePlayer('${p.id}')">Poista</button><button class="confirm-no" onclick="window.hideConfirm('confirm-p-${p.id}')">Peruuta</button></div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+            <span class="level-badge">${getLevel(xp)}</span>
+            <button class="del-btn" onclick="window.showConfirm('confirm-p-${p.id}')">Poista</button>
+          </div>`;
+        pl.appendChild(row);
+      });
+    }
+    const cl=document.getElementById('coach-challenge-list'); cl.innerHTML='';
+    if(!challenges.length){cl.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">Ei harjoitteita vielä.</div>';}
+    else {
+      Object.entries(CATS).forEach(([catKey,catInfo])=>{
+        const catChs=challenges.filter(c=>c.cat===catKey); if(!catChs.length) return;
+        const header=document.createElement('div'); header.style.cssText='margin:10px 0 4px;';
+        header.innerHTML=`<span class="cat-pill ${catInfo.cls}">${catInfo.label}</span>`; cl.appendChild(header);
+        catChs.forEach(ch=>{
+          const row=document.createElement('div'); row.style.cssText='padding:6px 0;border-bottom:1px solid var(--border);';
+          const catOptions=Object.entries(CATS).map(([v,c])=>`<option value="${v}"${ch.cat===v?' selected':''}>${c.label}</option>`).join('');
+          const xpOptions=[5,10,15,20].map(v=>`<option value="${v}"${(ch.xp||10)===v?' selected':''}>${v} XP</option>`).join('');
+          row.innerHTML=`<div style="display:flex;align-items:center;gap:8px">
+            <div style="flex:1;min-width:0">
+              <span style="font-size:13px;font-weight:500;color:var(--text)">${ch.title}</span>
+              <span style="font-size:11px;color:var(--text2);margin-left:6px">+${ch.xp||10} XP · avautuu ${ch.unlockAt||0} XP</span>
+            </div>
+            <button class="edit-btn" onclick="window.toggleEdit('edit-${ch.id}')">Muokkaa</button>
+            <button class="del-btn" onclick="window.showConfirm('confirm-ch-${ch.id}')">Poista</button>
+          </div>
+          <div class="confirm-bar" id="confirm-ch-${ch.id}">Poistetaanko harjoite? <button class="confirm-yes" onclick="window.deleteChallenge('${ch.id}')">Poista</button><button class="confirm-no" onclick="window.hideConfirm('confirm-ch-${ch.id}')">Peruuta</button></div>
+          <div class="edit-form" id="edit-${ch.id}">
+            <label class="form-label">Nimi</label><input type="text" id="edit-title-${ch.id}" value="${(ch.title||'').replace(/"/g,'&quot;')}" />
+            <label class="form-label">Kuvaus</label><textarea id="edit-desc-${ch.id}">${ch.desc||''}</textarea>
+            <label class="form-label">Kategoria</label><select id="edit-cat-${ch.id}">${catOptions}</select>
+            <label class="form-label">XP-pisteet</label><select id="edit-xp-${ch.id}">${xpOptions}</select>
+            <label class="form-label">YouTube-linkki</label><input type="text" id="edit-video-${ch.id}" value="${ch.video||''}" />
+            <label class="form-label">Avautuu kun kategoria-XP vähintään</label>
+            <input type="text" id="edit-unlock-${ch.id}" value="${ch.unlockAt||0}" style="width:80px" />
+            <div style="margin-top:8px"><button class="save-btn" onclick="window.saveChallenge('${ch.id}')">Tallenna</button><button class="cancel-btn" onclick="window.toggleEdit('edit-${ch.id}')">Peruuta</button></div>
+          </div>`;
+          cl.appendChild(row);
+        });
+      });
+    }
+    await loadHistory();
+    await loadSeasonArchive();
+    await loadSeasonLabel();
+  } catch(e){ showErr('err-coach','Lataus epäonnistui: '+e.message); }
+}
+
+async function loadHistory() {
+  const hl=document.getElementById('history-list'); hl.innerHTML='';
+  try {
+    const all=[];
+    for(const p of players){
+      const hSnap=await getDocs(collection(db,'teams',currentTeam,'players',p.id,'history'));
+      hSnap.docs.forEach(d=>all.push({playerName:p.name,...d.data()}));
+    }
+    all.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+    const hc=document.getElementById('acc-history-count'); if(hc) hc.textContent=all.length;
+    if(!all.length){hl.innerHTML='<div style="font-size:13px;color:var(--text2);padding:8px 0">Ei vielä suorituksia.</div>';return;}
+    all.forEach(h=>{
+      const row=document.createElement('div'); row.className='history-row';
+      row.innerHTML=`<span><span style="font-weight:600;color:var(--text)">${h.playerName}</span> – ${h.chTitle||'Harjoite'}</span><span>${h.date||''}</span>`;
+      hl.appendChild(row);
+    });
+  } catch(e){ hl.innerHTML='<div style="font-size:13px;color:#c0001a">Virhe: '+e.message+'</div>'; }
+}
+
+window.addPlayer = async () => {
+  const name=document.getElementById('new-player-name').value.trim(); if(!name) return;
+  try {
+    await addDoc(teamCol('players'),{name,xp:0,done:[],createdAt:serverTimestamp()});
+    document.getElementById('new-player-name').value='';
+    showOk('ok-coach','✓ Pelaaja "'+name+'" lisätty!');
+    await loadCoach();
+  } catch(e){ showErr('err-coach','Lisäys epäonnistui: '+e.message); }
+};
+
+window.addChallenge = async () => {
+  const title=document.getElementById('new-title').value.trim(); if(!title){document.getElementById('new-title').focus();return;}
+  try {
+    await addDoc(teamCol('challenges'),{
+      title, desc:document.getElementById('new-desc').value.trim()||'',
+      cat:document.getElementById('new-cat').value, xp:parseInt(document.getElementById('new-xp').value),
+      video:document.getElementById('new-video').value.trim()||null,
+      unlockAt:parseInt(document.getElementById('new-unlock').value)||0, createdAt:serverTimestamp()
+    });
+    document.getElementById('new-title').value=''; document.getElementById('new-desc').value=''; document.getElementById('new-video').value='';
+    showOk('ok-coach','✓ Harjoite lisätty!'); await loadCoach();
+  } catch(e){ showErr('err-coach','Lisäys epäonnistui: '+e.message); }
+};
+
+window.deletePlayer = async (id) => {
+  try {
+    const hSnap=await getDocs(collection(db,'teams',currentTeam,'players',id,'history'));
+    await Promise.all(hSnap.docs.map(d=>deleteDoc(d.ref)));
+    await deleteDoc(teamDoc('players',id));
+    showOk('ok-coach','✓ Pelaaja poistettu.'); await loadCoach();
+  } catch(e){ showErr('err-coach','Poisto epäonnistui: '+e.message); }
+};
+
+window.deleteChallenge = async (id) => {
+  try {
+    await deleteDoc(teamDoc('challenges',id));
+    showOk('ok-coach','✓ Harjoite poistettu.'); await loadCoach();
+  } catch(e){ showErr('err-coach','Poisto epäonnistui: '+e.message); }
+};
+
+window.toggleEdit = (id) => { const el=document.getElementById(id); if(!el) return; el.style.display=el.style.display==='block'?'none':'block'; };
+
+window.saveChallenge = async (id) => {
+  const title=document.getElementById('edit-title-'+id).value.trim(); if(!title) return;
+  try {
+    await updateDoc(teamDoc('challenges',id),{
+      title, desc:document.getElementById('edit-desc-'+id).value.trim()||'',
+      cat:document.getElementById('edit-cat-'+id).value, xp:parseInt(document.getElementById('edit-xp-'+id).value),
+      video:document.getElementById('edit-video-'+id).value.trim()||null,
+      unlockAt:parseInt(document.getElementById('edit-unlock-'+id).value)||0
+    });
+    showOk('ok-coach','✓ Harjoite tallennettu!'); await loadCoach();
+  } catch(e){ showErr('err-coach','Tallennus epäonnistui: '+e.message); }
+};
+
+window.saveSeasonLabel = async () => {
+  const label=document.getElementById('season-label-input').value.trim();
+  try {
+    const snap=await getDocs(collection(db,'teams',currentTeam,'settings'));
+    if(!snap.empty){ await updateDoc(snap.docs[0].ref,{seasonLabel:label}); }
+    else { await addDoc(collection(db,'teams',currentTeam,'settings'),{seasonLabel:label}); }
+    const el=document.getElementById('season-subtitle');
+    if(el) el.innerHTML=label?`<span class="season-tag">${label}</span>`:'';
+    showOk('ok-coach','✓ Jakson nimi tallennettu!');
+  } catch(e){ showErr('err-coach','Tallennus epäonnistui: '+e.message); }
+};
+
+async function loadSeasonLabel() {
+  try {
+    const snap=await getDocs(collection(db,'teams',currentTeam,'settings'));
+    if(!snap.empty){
+      const label=snap.docs[0].data().seasonLabel||'';
+      const el=document.getElementById('season-subtitle');
+      if(el&&label) el.innerHTML=`<span class="season-tag">${label}</span>`;
+      const inp=document.getElementById('season-label-input');
+      if(inp) inp.value=label;
+    }
+  } catch(e){}
+}
+
+window.showSeasonConfirm = () => {
+  const name=document.getElementById('season-name').value.trim();
+  if(!name){document.getElementById('season-name').focus();return;}
+  document.getElementById('season-confirm').style.display='block';
+  document.getElementById('season-btn').style.display='none';
+};
+
+window.doSeasonReset = async () => {
+  const name=document.getElementById('season-name').value.trim(); if(!name) return;
+  try {
+    const date=new Date().toISOString().split('T')[0];
+    const snapTotalXP=totalXP();
+    const freshSnap=await getDocs(teamCol('players'));
+    const freshPlayers=freshSnap.docs.map(d=>({id:d.id,...d.data()}));
+    const virheet=[];
+    for(const p of freshPlayers){
+      try {
+        await addDoc(collection(db,'teams',currentTeam,'players',p.id,'kaudet'),{
+          nimi:name, xp:p.xp||0, suorituksia:(p.done||[]).length, date, totalXP:snapTotalXP, ts:serverTimestamp()
+        });
+        const hSnap=await getDocs(collection(db,'teams',currentTeam,'players',p.id,'history'));
+        await Promise.all(hSnap.docs.map(d=>deleteDoc(d.ref)));
+        await updateDoc(teamDoc('players',p.id),{xp:0,done:[]});
+      } catch(e){ virheet.push(p.name); }
+    }
+    document.getElementById('season-name').value='';
+    document.getElementById('season-confirm').style.display='none';
+    document.getElementById('season-btn').style.display='block';
+    if(virheet.length){ showErr('err-coach','⚠️ Epäonnistui: '+virheet.join(', ')); }
+    else { showOk('ok-coach','✓ Kausi "'+name+'" arkistoitu!'); }
+    await loadCoach();
+  } catch(e){ showErr('err-coach','Kauden vaihto epäonnistui: '+e.message); }
+};
+
+window._seasonDocs={};
+async function loadSeasonArchive() {
+  const el=document.getElementById('season-archive');
+  try {
+    const kaudetMap={};
+    for(const p of players){
+      const snap=await getDocs(collection(db,'teams',currentTeam,'players',p.id,'kaudet'));
+      snap.docs.forEach(d=>{
+        const data=d.data();
+        if(!kaudetMap[data.nimi]) kaudetMap[data.nimi]={date:data.date||'',pelaajat:[],docs:[]};
+        kaudetMap[data.nimi].pelaajat.push({name:p.name,xp:data.xp||0,suorituksia:data.suorituksia||0});
+        kaudetMap[data.nimi].docs.push({playerId:p.id,docId:d.id});
+      });
+    }
+    const kaudet=Object.entries(kaudetMap).sort((a,b)=>b[1].date.localeCompare(a[1].date));
+    if(!kaudet.length){el.innerHTML='<div style="font-size:13px;color:var(--text2)">Ei arkistoituja kausia.</div>';return;}
+    el.innerHTML='';
+    kaudet.forEach(([nimi,data])=>{
+      const safeId=btoa(unescape(encodeURIComponent(nimi))).replace(/[^a-z0-9]/gi,'');
+      window._seasonDocs[safeId]=data.docs;
+      const block=document.createElement('div'); block.style.cssText='margin-bottom:10px;border:1px solid var(--border);border-radius:10px;overflow:hidden';
+      const sorted=[...data.pelaajat].sort((a,b)=>b.xp-a.xp);
+      block.innerHTML=`<div style="background:var(--bg3);padding:8px 12px;font-size:12px;font-weight:700;color:var(--text2);display:flex;justify-content:space-between;align-items:center">
+        <span>${nimi} <span style="font-weight:400">· ${data.date}</span></span>
+        <button class="del-btn" onclick="window.showConfirm('confirm-season-${safeId}')">Poista</button>
+      </div>
+      <div class="confirm-bar" id="confirm-season-${safeId}" style="padding:8px 12px;background:#fff8f8">
+        Poistetaanko kausi pysyvästi? <button class="confirm-yes" onclick="window.deleteSeason('${safeId}')">Poista</button><button class="confirm-no" onclick="window.hideConfirm('confirm-season-${safeId}')">Peruuta</button>
+      </div>
+      ${sorted.map(p=>`<div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 12px;border-top:1px solid var(--border);color:var(--text2)"><span>${p.name}</span><span style="font-weight:600;color:var(--text)">${p.xp} XP · ${p.suorituksia} suoritusta</span></div>`).join('')}`;
+      el.appendChild(block);
+    });
+  } catch(e){ el.innerHTML='<div style="font-size:13px;color:#c0001a">Virhe: '+e.message+'</div>'; }
+}
+
+window.deleteSeason = async (safeId) => {
+  const docs=window._seasonDocs[safeId]; if(!docs){showErr('err-coach','Virhe: ei löydy.');return;}
+  try {
+    await Promise.all(docs.map(d=>deleteDoc(doc(db,'teams',currentTeam,'players',d.playerId,'kaudet',d.docId))));
+    showOk('ok-coach','✓ Kausi poistettu.'); await loadCoach();
+  } catch(e){ showErr('err-coach','Poisto epäonnistui: '+e.message); }
+};
+
+window.clearAllHistory = async () => {
+  try {
+    for(const p of players){
+      const hSnap=await getDocs(collection(db,'teams',currentTeam,'players',p.id,'history'));
+      await Promise.all(hSnap.docs.map(d=>deleteDoc(d.ref)));
+    }
+    showOk('ok-coach','✓ Historia tyhjennetty.'); await loadCoach();
+  } catch(e){ showErr('err-coach','Tyhjennys epäonnistui: '+e.message); }
+};
+</script>
+</body>
+</html>
