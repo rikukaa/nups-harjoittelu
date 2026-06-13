@@ -167,7 +167,7 @@
 <div class="app">
   <header>
     <div class="header-inner">
-      <div class="header-icon">⚽</div>
+      <div class="header-icon" onclick="window.goHome()" style="cursor:pointer" title="Joukkuevalinta">⚽</div>
       <div style="flex:1">
         <h1>NuPS <span>omatoimiharjoittelu</span></h1>
         <div id="season-subtitle"></div>
@@ -180,11 +180,11 @@
   <!-- JOUKKUEVALINTA -->
   <div id="team-select-screen" class="team-select-screen">
     <div class="section-title" style="margin-bottom:12px">Valitse joukkue</div>
-    <button class="team-btn" onclick="selectTeam('p17')">
+    <button class="team-btn" onclick="window.selectTeam('p17')">
       <div class="team-btn-icon">⚽</div>
       <div class="team-btn-name">P17</div>
     </button>
-    <button class="team-btn" onclick="selectTeam('t16-17')">
+    <button class="team-btn" onclick="window.selectTeam('t16-17')">
       <div class="team-btn-icon">⚽</div>
       <div class="team-btn-name">T16-17</div>
     </button>
@@ -399,6 +399,19 @@ function showOk(id,msg){const el=document.getElementById(id);if(!el)return;el.te
 function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.style.display='block';setTimeout(()=>t.style.display='none',2500);}
 
 // JOUKKUEVALINTA
+window.goHome = () => {
+  currentTeam = null; currentPlayer = null;
+  document.getElementById('team-select-screen').style.display = 'block';
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('player-select-screen').style.display = 'block';
+  document.getElementById('player-app').style.display = 'none';
+  document.getElementById('overview-panel').style.display = 'none';
+  document.getElementById('coach-gate').style.display = 'block';
+  document.getElementById('coach-panel').style.display = 'none';
+  document.querySelector('header h1').innerHTML = 'NuPS <span>omatoimiharjoittelu</span>';
+  document.getElementById('season-subtitle').innerHTML = '';
+};
+
 window.selectTeam = async (teamId) => {
   currentTeam = teamId;
   const team = TEAMS[teamId];
